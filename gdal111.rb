@@ -1,21 +1,9 @@
 require 'formula'
 
-class Gdal < Formula
+class Gdal111 < Formula
   homepage 'http://www.gdal.org/'
   url "http://download.osgeo.org/gdal/1.11.1/gdal-1.11.1.tar.gz"
   sha1 "e2c67481932ec9fb6ec3c0faadc004f715c4eef4"
-  revision 3
-
-  bottle do
-    sha1 "672ef7894b473fbe7650bd442c06e8e61a2415f0" => :yosemite
-    sha1 "ccfd06fd15e86bbc24e5475e2be27a2bdb487986" => :mavericks
-    sha1 "fd2b45f6412a9459bcda143baa57cda6c63aad61" => :mountain_lion
-  end
-
-  head do
-    url 'https://svn.osgeo.org/gdal/trunk/gdal'
-    depends_on 'doxygen' => :build
-  end
 
   option 'complete', 'Use additional Homebrew libraries to provide more drivers.'
   option 'enable-opencl', 'Build with OpenCL acceleration.'
@@ -297,7 +285,6 @@ class Gdal < Formula
       bin.install Dir['scripts/*']
     end
 
-    system 'make', 'man' if build.head?
     system 'make', 'install-man'
     # Clean up any stray doxygen files.
     Dir.glob("#{bin}/*.dox") { |p| rm p }
