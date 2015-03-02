@@ -1,37 +1,37 @@
 class Gdal110 < Formula
-  homepage 'http://www.gdal.org/'
-  url 'http://download.osgeo.org/gdal/1.10.1/gdal-1.10.1.tar.gz'
-  sha1 'b4df76e2c0854625d2bedce70cc1eaf4205594ae'
+  homepage "http://www.gdal.org/"
+  url "http://download.osgeo.org/gdal/1.10.1/gdal-1.10.1.tar.gz"
+  sha1 "b4df76e2c0854625d2bedce70cc1eaf4205594ae"
 
-  option 'complete', 'Use additional Homebrew libraries to provide more drivers.'
-  option 'enable-opencl', 'Build with OpenCL acceleration.'
-  option 'enable-armadillo', 'Build with Armadillo accelerated TPS transforms.'
-  option 'enable-unsupported', "Allow configure to drag in any library it can find. Invoke this at your own risk."
-  option 'enable-mdb', 'Build with Access MDB driver (requires Java 1.6+ JDK/JRE, from Apple or Oracle).'
+  option "complete", "Use additional Homebrew libraries to provide more drivers."
+  option "enable-opencl", "Build with OpenCL acceleration."
+  option "enable-armadillo", "Build with Armadillo accelerated TPS transforms."
+  option "enable-unsupported", "Allow configure to drag in any library it can find. Invoke this at your own risk."
+  option "enable-mdb", "Build with Access MDB driver (requires Java 1.6+ JDK/JRE, from Apple or Oracle)."
 
   depends_on :python => :recommended
   if build.with? "python"
     depends_on :fortran => :build
   end
 
-  depends_on 'libpng'
-  depends_on 'jpeg'
-  depends_on 'giflib'
-  depends_on 'libtiff'
-  depends_on 'libgeotiff'
-  depends_on 'proj'
-  depends_on 'geos'
+  depends_on "libpng"
+  depends_on "jpeg"
+  depends_on "giflib"
+  depends_on "libtiff"
+  depends_on "libgeotiff"
+  depends_on "proj"
+  depends_on "geos"
 
-  depends_on 'sqlite' # To ensure compatibility with SpatiaLite.
-  depends_on 'freexl'
-  depends_on 'libspatialite'
+  depends_on "sqlite" # To ensure compatibility with SpatiaLite.
+  depends_on "freexl"
+  depends_on "libspatialite"
 
   depends_on "postgresql" => :optional
   depends_on "mysql" => :optional
 
-  depends_on 'homebrew/science/armadillo' => :optional
+  depends_on "homebrew/science/armadillo" => :optional
 
-  if build.include? 'complete'
+  if build.include? "complete"
     # Raster libraries
     depends_on "homebrew/science/netcdf" # Also brings in HDF5
     depends_on "jasper"
@@ -64,9 +64,9 @@ class Gdal110 < Formula
     end if build.include? "enable-mdb"
   end
 
-  resource 'numpy' do
-    url 'https://downloads.sourceforge.net/project/numpy/NumPy/1.8.1/numpy-1.8.1.tar.gz'
-    sha1 '8fe1d5f36bab3f1669520b4c7d8ab59a21a984da'
+  resource "numpy" do
+    url "https://downloads.sourceforge.net/project/numpy/NumPy/1.8.1/numpy-1.8.1.tar.gz"
+    sha1 "8fe1d5f36bab3f1669520b4c7d8ab59a21a984da"
   end
 
   def get_configure_args
@@ -126,12 +126,12 @@ class Gdal110 < Formula
       webp
       poppler
     ]
-    if build.include? 'complete'
-      supported_backends.delete 'liblzma'
-      args << '--with-liblzma=yes'
-      args.concat supported_backends.map {|b| '--with-' + b + '=' + HOMEBREW_PREFIX}
+    if build.include? "complete"
+      supported_backends.delete "liblzma"
+      args << "--with-liblzma=yes"
+      args.concat supported_backends.map {|b| "--with-" + b + "=" + HOMEBREW_PREFIX}
     else
-      args.concat supported_backends.map {|b| '--without-' + b} unless build.include? 'enable-unsupported'
+      args.concat supported_backends.map {|b| "--without-" + b} unless build.include? "enable-unsupported"
     end
 
     # The following libraries are either proprietary, not available for public
@@ -163,13 +163,13 @@ class Gdal110 < Formula
       podofo
       rasdaman
     ]
-    args.concat unsupported_backends.map {|b| '--without-' + b} unless build.include? 'enable-unsupported'
+    args.concat unsupported_backends.map {|b| "--without-" + b} unless build.include? "enable-unsupported"
 
     # Database support.
     args << (build.with?("postgresql") ? "--with-pg=#{HOMEBREW_PREFIX}/bin/pg_config" : "--without-pg")
     args << (build.with?("mysql") ? "--with-mysql=#{HOMEBREW_PREFIX}/bin/mysql_config" : "--without-mysql")
 
-    if build.include? 'enable-mdb'
+    if build.include? "enable-mdb"
       args << "--with-java=yes"
       # The rpath is only embedded for Oracle (non-framework) installs
       args << "--with-jvm-lib-add-rpath=yes"
@@ -177,7 +177,7 @@ class Gdal110 < Formula
     end
 
     # Python is installed manually to ensure everything is properly sandboxed.
-    args << '--without-python'
+    args << "--without-python"
 
     # Scripting APIs that have not been re-worked to respect Homebrew prefixes.
     #
@@ -198,11 +198,11 @@ class Gdal110 < Formula
   end
 
   def install
-    if build.with? 'python'
-      ENV.prepend_create_path 'PYTHONPATH', libexec+'lib/python2.7/site-packages'
+    if build.with? "python"
+      ENV.prepend_create_path "PYTHONPATH", libexec+"lib/python2.7/site-packages"
       numpy_args = [ "build", "--fcompiler=gnu95",
                      "install", "--prefix=#{libexec}" ]
-      resource('numpy').stage { system "python", "setup.py", *numpy_args }
+      resource("numpy").stage { system "python", "setup.py", *numpy_args }
     end
 
     # Linking flags for SQLite are not added at a critical moment when the GDAL
@@ -212,16 +212,16 @@ class Gdal110 < Formula
     #
     # Fortunately, this can be remedied using LDFLAGS.
     sqlite = Formula["sqlite"]
-    ENV.append 'LDFLAGS', "-L#{sqlite.opt_lib} -lsqlite3"
-    ENV.append 'CFLAGS', "-I#{sqlite.opt_include}"
+    ENV.append "LDFLAGS", "-L#{sqlite.opt_lib} -lsqlite3"
+    ENV.append "CFLAGS", "-I#{sqlite.opt_include}"
     # Needed by libdap
-    ENV.libxml2 if build.include? 'complete'
+    ENV.libxml2 if build.include? "complete"
 
     # Reset ARCHFLAGS to match how we build.
-    ENV['ARCHFLAGS'] = "-arch #{MacOS.preferred_arch}"
+    ENV["ARCHFLAGS"] = "-arch #{MacOS.preferred_arch}"
 
     # Fix hardcoded mandir: http://trac.osgeo.org/gdal/ticket/5092
-    inreplace 'configure', %r[^mandir='\$\{prefix\}/man'$], ''
+    inreplace "configure", %r[^mandir="\$\{prefix\}/man"$], ""
 
     system "./configure", *get_configure_args
     system "make"
@@ -235,18 +235,18 @@ class Gdal110 < Formula
       ENV.append_to_cflags "-arch #{Hardware::CPU.arch_32_bit}"
     end
 
-    cd 'swig/python' do
+    cd "swig/python" do
       system "python", "setup.py", "install", "--prefix=#{prefix}", "--record=installed.txt", "--single-version-externally-managed"
-      bin.install Dir['scripts/*']
+      bin.install Dir["scripts/*"]
     end
 
-    system 'make', 'install-man'
+    system "make", "install-man"
     # Clean up any stray doxygen files.
-    Dir[bin + '*.dox'].each { |p| rm p }
+    Dir[bin + "*.dox"].each { |p| rm p }
   end
 
   def caveats
-    if build.include? 'enable-mdb'
+    if build.include? "enable-mdb"
       <<-EOS.undent
 
       To have a functional MDB driver, install supporting .jar files in:
