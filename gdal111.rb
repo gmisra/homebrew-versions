@@ -221,12 +221,12 @@ class Gdal111 < Formula
     args
   end
 
-  def package_installed python, module_name
+  def package_installed(python, module_name)
     quiet_system python, "-c", "import #{module_name}"
   end
 
   def install
-    if build.with? "python" and !package_installed("python", "numpy")
+    if (build.with? "python") && !(package_installed "python", "numpy")
       ENV.prepend_create_path "PYTHONPATH", libexec+"lib/python2.7/site-packages"
       numpy_args = ["build", "--fcompiler=gnu95",
                     "install", "--prefix=#{libexec}"]
