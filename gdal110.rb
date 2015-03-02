@@ -3,11 +3,11 @@ class Gdal110 < Formula
   url "http://download.osgeo.org/gdal/1.10.1/gdal-1.10.1.tar.gz"
   sha1 "b4df76e2c0854625d2bedce70cc1eaf4205594ae"
 
-  option "complete", "Use additional Homebrew libraries to provide more drivers."
-  option "enable-opencl", "Build with OpenCL acceleration."
-  option "enable-armadillo", "Build with Armadillo accelerated TPS transforms."
-  option "enable-unsupported", "Allow configure to drag in any library it can find. Invoke this at your own risk."
-  option "enable-mdb", "Build with Access MDB driver (requires Java 1.6+ JDK/JRE, from Apple or Oracle)."
+  option "with-complete", "Use additional Homebrew libraries to provide more drivers."
+  option "with-opencl", "Build with OpenCL acceleration."
+  option "with-armadillo", "Build with Armadillo accelerated TPS transforms."
+  option "with-unsupported", "Allow configure to drag in any library it can find. Invoke this at your own risk."
+  option "with-mdb", "Build with Access MDB driver (requires Java 1.6+ JDK/JRE, from Apple or Oracle)."
 
   depends_on :python => :recommended
   if build.with? "python"
@@ -31,7 +31,7 @@ class Gdal110 < Formula
 
   depends_on "homebrew/science/armadillo" => :optional
 
-  if build.include? "complete"
+  if build.with? "complete"
     # Raster libraries
     depends_on "homebrew/science/netcdf" # Also brings in HDF5
     depends_on "jasper"
@@ -61,7 +61,7 @@ class Gdal110 < Formula
     patch do
       url "https://gist.githubusercontent.com/dakcarto/6877854/raw/82ae81e558c0b6048336f0acb5d7577bd0a237d5/gdal-mdb-patch.diff"
       sha1 "ea6c753df9e35abd90d7078f8a727eaab7f7d996"
-    end if build.include? "enable-mdb"
+    end if build.with? "mdb"
   end
 
   resource "numpy" do
@@ -126,12 +126,12 @@ class Gdal110 < Formula
       webp
       poppler
     ]
-    if build.include? "complete"
+    if build.with? "complete"
       supported_backends.delete "liblzma"
       args << "--with-liblzma=yes"
       args.concat supported_backends.map {|b| "--with-" + b + "=" + HOMEBREW_PREFIX}
     else
-      args.concat supported_backends.map {|b| "--without-" + b} unless build.include? "enable-unsupported"
+      args.concat supported_backends.map {|b| "--without-" + b} unless build.with? "unsupported"
     end
 
     # The following libraries are either proprietary, not available for public
@@ -163,13 +163,13 @@ class Gdal110 < Formula
       podofo
       rasdaman
     ]
-    args.concat unsupported_backends.map {|b| "--without-" + b} unless build.include? "enable-unsupported"
+    args.concat unsupported_backends.map {|b| "--without-" + b} unless build.with? "unsupported"
 
     # Database support.
     args << (build.with?("postgresql") ? "--with-pg=#{HOMEBREW_PREFIX}/bin/pg_config" : "--without-pg")
     args << (build.with?("mysql") ? "--with-mysql=#{HOMEBREW_PREFIX}/bin/mysql_config" : "--without-mysql")
 
-    if build.include? "enable-mdb"
+    if build.with? "mdb"
       args << "--with-java=yes"
       # The rpath is only embedded for Oracle (non-framework) installs
       args << "--with-jvm-lib-add-rpath=yes"
@@ -191,8 +191,8 @@ class Gdal110 < Formula
     args << "--without-php"
     args << "--without-ruby"
 
-    args << (build.include?("enable-opencl") ? "--with-opencl" : "--without-opencl")
-    args << (build.include?("enable-armadillo") ? "--with-armadillo=yes" : "--with-armadillo=no")
+    args << (build.with?("opencl") ? "--with-opencl" : "--without-opencl")
+    args << (build.with?("armadillo") ? "--with-armadillo=yes" : "--with-armadillo=no")
 
     return args
   end
@@ -215,7 +215,7 @@ class Gdal110 < Formula
     ENV.append "LDFLAGS", "-L#{sqlite.opt_lib} -lsqlite3"
     ENV.append "CFLAGS", "-I#{sqlite.opt_include}"
     # Needed by libdap
-    ENV.libxml2 if build.include? "complete"
+    ENV.libxml2 if build.with? "complete"
 
     # Reset ARCHFLAGS to match how we build.
     ENV["ARCHFLAGS"] = "-arch #{MacOS.preferred_arch}"
@@ -246,7 +246,7 @@ class Gdal110 < Formula
   end
 
   def caveats
-    if build.include? "enable-mdb"
+    if build.with? "mdb"
       <<-EOS.undent
 
       To have a functional MDB driver, install supporting .jar files in:

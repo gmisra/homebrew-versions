@@ -3,11 +3,11 @@ class Gdal111 < Formula
   url "http://download.osgeo.org/gdal/1.11.1/gdal-1.11.1.tar.gz"
   sha1 "e2c67481932ec9fb6ec3c0faadc004f715c4eef4"
 
-  option "complete", "Use additional Homebrew libraries to provide more drivers."
-  option "enable-opencl", "Build with OpenCL acceleration."
-  option "enable-armadillo", "Build with Armadillo accelerated TPS transforms."
-  option "enable-unsupported", "Allow configure to drag in any library it can find. Invoke this at your own risk."
-  option "enable-mdb", "Build with Access MDB driver (requires Java 1.6+ JDK/JRE, from Apple or Oracle)."
+  option "with-complete", "Use additional Homebrew libraries to provide more drivers."
+  option "with-opencl", "Build with OpenCL acceleration."
+  option "with-armadillo", "Build with Armadillo accelerated TPS transforms."
+  option "with-unsupported", "Allow configure to drag in any library it can find. Invoke this at your own risk."
+  option "with-mdb", "Build with Access MDB driver (requires Java 1.6+ JDK/JRE, from Apple or Oracle)."
   option "with-libkml", "Build with Google's libkml driver (requires libkml --HEAD or >= 1.3)"
 
   depends_on :python => :optional
@@ -38,7 +38,7 @@ class Gdal111 < Formula
     depends_on "libtool" => :build
   end
 
-  if build.include? "complete"
+  if build.with? "complete"
     # Raster libraries
     depends_on "homebrew/science/netcdf" # Also brings in HDF5
     depends_on "jasper"
@@ -76,7 +76,7 @@ class Gdal111 < Formula
   patch do
     url "https://gist.githubusercontent.com/dakcarto/7abad108aa31a1e53fb4/raw/b56887208fd91d0434d5a901dae3806fb1bd32f8/gdal-armadillo.patch"
     sha1 "3af1cae94a977d55541adba0d86c697d77bd1320"
-  end if build.include? "enable-armadillo"
+  end if build.with? "armadillo"
 
   resource "numpy" do
     url "https://downloads.sourceforge.net/project/numpy/NumPy/1.8.1/numpy-1.8.1.tar.gz"
@@ -148,12 +148,12 @@ class Gdal111 < Formula
       webp
       poppler
     ]
-    if build.include? "complete"
+    if build.with? "complete"
       supported_backends.delete "liblzma"
       args << "--with-liblzma=yes"
       args.concat supported_backends.map {|b| "--with-" + b + "=" + HOMEBREW_PREFIX}
     else
-      args.concat supported_backends.map {|b| "--without-" + b} unless build.include? "enable-unsupported"
+      args.concat supported_backends.map {|b| "--without-" + b} unless build.with? "unsupported"
     end
 
     # The following libraries are either proprietary, not available for public
@@ -185,13 +185,13 @@ class Gdal111 < Formula
       rasdaman
       sosi
     ]
-    args.concat unsupported_backends.map {|b| "--without-" + b} unless build.include? "enable-unsupported"
+    args.concat unsupported_backends.map {|b| "--without-" + b} unless build.with? "unsupported"
 
     # Database support.
     args << (build.with?("postgresql") ? "--with-pg=#{HOMEBREW_PREFIX}/bin/pg_config" : "--without-pg")
     args << (build.with?("mysql") ? "--with-mysql=#{HOMEBREW_PREFIX}/bin/mysql_config" : "--without-mysql")
 
-    if build.include? "enable-mdb"
+    if build.with? "mdb"
       args << "--with-java=yes"
       # The rpath is only embedded for Oracle (non-framework) installs
       args << "--with-jvm-lib-add-rpath=yes"
@@ -215,8 +215,8 @@ class Gdal111 < Formula
     args << "--without-php"
     args << "--without-ruby"
 
-    args << (build.include?("enable-opencl") ? "--with-opencl" : "--without-opencl")
-    args << (build.include?("enable-armadillo") ? "--with-armadillo=#{Formula["armadillo"].opt_prefix}" : "--with-armadillo=no")
+    args << (build.with?("opencl") ? "--with-opencl" : "--without-opencl")
+    args << (build.with?("armadillo") ? "--with-armadillo=#{Formula["armadillo"].opt_prefix}" : "--with-armadillo=no")
 
     return args
   end
@@ -289,7 +289,7 @@ class Gdal111 < Formula
   end
 
   def caveats
-    if build.include? "enable-mdb"
+    if build.with? "mdb"
       <<-EOS.undent
 
       To have a functional MDB driver, install supporting .jar files in:
