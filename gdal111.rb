@@ -279,7 +279,7 @@ class Gdal111 < Formula
     end
 
     cd "swig/python" do
-      system "python", "setup.py", "install", "--prefix=#{prefix}", "--record=installed.txt", "--single-version-externally-managed"
+      system "python", *Language::Python.setup_install_args(libexec/"vendor")
       bin.install Dir["scripts/*"]
     end
 
