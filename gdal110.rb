@@ -1,5 +1,3 @@
-require 'formula'
-
 class Gdal110 < Formula
   homepage 'http://www.gdal.org/'
   url 'http://download.osgeo.org/gdal/1.10.1/gdal-1.10.1.tar.gz'
@@ -31,7 +29,7 @@ class Gdal110 < Formula
   depends_on "postgresql" => :optional
   depends_on "mysql" => :optional
 
-  depends_on 'homebrew/science/armadillo' if build.include? 'enable-armadillo'
+  depends_on 'homebrew/science/armadillo' => :optional
 
   if build.include? 'complete'
     # Raster libraries
@@ -67,7 +65,7 @@ class Gdal110 < Formula
   end
 
   resource 'numpy' do
-    url 'http://downloads.sourceforge.net/project/numpy/NumPy/1.8.1/numpy-1.8.1.tar.gz'
+    url 'https://downloads.sourceforge.net/project/numpy/NumPy/1.8.1/numpy-1.8.1.tar.gz'
     sha1 '8fe1d5f36bab3f1669520b4c7d8ab59a21a984da'
   end
 
