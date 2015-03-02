@@ -90,7 +90,7 @@ class Gdal111 < Formula
     version "1.3-dev"
   end
 
-  def get_configure_args
+  def configure_args
     args = [
       # Base configuration.
       "--prefix=#{prefix}",
@@ -131,7 +131,7 @@ class Gdal111 < Formula
       # Should be installed separately after GRASS installation using the
       # official GDAL GRASS plugin.
       "--without-grass",
-      "--without-libgrass"
+      "--without-libgrass",
     ]
 
     # Optional Homebrew packages supporting additional formats.
@@ -151,9 +151,9 @@ class Gdal111 < Formula
     if build.with? "complete"
       supported_backends.delete "liblzma"
       args << "--with-liblzma=yes"
-      args.concat supported_backends.map {|b| "--with-" + b + "=" + HOMEBREW_PREFIX}
+      args.concat supported_backends.map { |b| "--with-" + b + "=" + HOMEBREW_PREFIX }
     else
-      args.concat supported_backends.map {|b| "--without-" + b} unless build.with? "unsupported"
+      args.concat supported_backends.map { |b| "--without-" + b } if build.without? "unsupported"
     end
 
     # The following libraries are either proprietary, not available for public
@@ -185,7 +185,7 @@ class Gdal111 < Formula
       rasdaman
       sosi
     ]
-    args.concat unsupported_backends.map {|b| "--without-" + b} unless build.with? "unsupported"
+    args.concat unsupported_backends.map { |b| "--without-" + b } if build.without? "unsupported"
 
     # Database support.
     args << (build.with?("postgresql") ? "--with-pg=#{HOMEBREW_PREFIX}/bin/pg_config" : "--without-pg")
@@ -218,14 +218,14 @@ class Gdal111 < Formula
     args << (build.with?("opencl") ? "--with-opencl" : "--without-opencl")
     args << (build.with?("armadillo") ? "--with-armadillo=#{Formula["armadillo"].opt_prefix}" : "--with-armadillo=no")
 
-    return args
+    args
   end
 
   def install
     if build.with? "python"
       ENV.prepend_create_path "PYTHONPATH", libexec+"lib/python2.7/site-packages"
-      numpy_args = [ "build", "--fcompiler=gnu95",
-                     "install", "--prefix=#{libexec}" ]
+      numpy_args = ["build", "--fcompiler=gnu95",
+                    "install", "--prefix=#{libexec}"]
       resource("numpy").stage { system "python", "setup.py", *numpy_args }
     end
 
@@ -266,9 +266,9 @@ class Gdal111 < Formula
     # These libs are statically linked in vendored libkml and libkml formula
     inreplace "configure", " -lminizip -luriparser", "" if build.with? "libkml"
 
-    system "./configure", *get_configure_args
+    system "./configure", *configure_args
     system "make"
-    system "make install"
+    system "make", "install"
 
     # `python-config` may try to talk us into building bindings for more
     # architectures than we really should.

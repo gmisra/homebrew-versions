@@ -69,7 +69,7 @@ class Gdal110 < Formula
     sha1 "8fe1d5f36bab3f1669520b4c7d8ab59a21a984da"
   end
 
-  def get_configure_args
+  def configure_args
     args = [
       # Base configuration.
       "--prefix=#{prefix}",
@@ -109,7 +109,7 @@ class Gdal110 < Formula
       # Should be installed separately after GRASS installation using the
       # official GDAL GRASS plugin.
       "--without-grass",
-      "--without-libgrass"
+      "--without-libgrass",
     ]
 
     # Optional Homebrew packages supporting additional formats.
@@ -129,9 +129,9 @@ class Gdal110 < Formula
     if build.with? "complete"
       supported_backends.delete "liblzma"
       args << "--with-liblzma=yes"
-      args.concat supported_backends.map {|b| "--with-" + b + "=" + HOMEBREW_PREFIX}
+      args.concat supported_backends.map { |b| "--with-" + b + "=" + HOMEBREW_PREFIX }
     else
-      args.concat supported_backends.map {|b| "--without-" + b} unless build.with? "unsupported"
+      args.concat supported_backends.map { |b| "--without-" + b } if build.without? "unsupported"
     end
 
     # The following libraries are either proprietary, not available for public
@@ -163,7 +163,7 @@ class Gdal110 < Formula
       podofo
       rasdaman
     ]
-    args.concat unsupported_backends.map {|b| "--without-" + b} unless build.with? "unsupported"
+    args.concat unsupported_backends.map { |b| "--without-" + b } if build.without? "unsupported"
 
     # Database support.
     args << (build.with?("postgresql") ? "--with-pg=#{HOMEBREW_PREFIX}/bin/pg_config" : "--without-pg")
@@ -194,14 +194,14 @@ class Gdal110 < Formula
     args << (build.with?("opencl") ? "--with-opencl" : "--without-opencl")
     args << (build.with?("armadillo") ? "--with-armadillo=yes" : "--with-armadillo=no")
 
-    return args
+    args
   end
 
   def install
     if build.with? "python"
       ENV.prepend_create_path "PYTHONPATH", libexec+"lib/python2.7/site-packages"
-      numpy_args = [ "build", "--fcompiler=gnu95",
-                     "install", "--prefix=#{libexec}" ]
+      numpy_args = ["build", "--fcompiler=gnu95",
+                    "install", "--prefix=#{libexec}"]
       resource("numpy").stage { system "python", "setup.py", *numpy_args }
     end
 
@@ -223,9 +223,9 @@ class Gdal110 < Formula
     # Fix hardcoded mandir: http://trac.osgeo.org/gdal/ticket/5092
     inreplace "configure", %r[^mandir="\$\{prefix\}/man"$], ""
 
-    system "./configure", *get_configure_args
+    system "./configure", *configure_args
     system "make"
-    system "make install"
+    system "make", "install"
 
     # `python-config` may try to talk us into building bindings for more
     # architectures than we really should.
@@ -255,6 +255,12 @@ class Gdal110 < Formula
       See: `http://www.gdal.org/ogr/drv_mdb.html`
       EOS
     end
+  end
+
+  test do
+    # basic tests to see if third-party dylibs are loading OK
+    system "#{bin}/gdalinfo", "--formats"
+    system "#{bin}/ogrinfo", "--formats"
   end
 end
 
