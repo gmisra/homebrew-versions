@@ -1,7 +1,7 @@
 class Gdal111 < Formula
   homepage "http://www.gdal.org/"
   url "http://download.osgeo.org/gdal/1.11.1/gdal-1.11.1.tar.gz"
-  sha1 "e2c67481932ec9fb6ec3c0faadc004f715c4eef4"
+  sha256 "f46b5944a8cabc8516673f231f466131cdfd2cdc6677dbee5d96ec7fc58a3340"
 
   option "with-complete", "Use additional Homebrew libraries to provide more drivers."
   option "with-opencl", "Build with OpenCL acceleration."
@@ -80,7 +80,7 @@ class Gdal111 < Formula
 
   resource "numpy" do
     url "https://downloads.sourceforge.net/project/numpy/NumPy/1.8.1/numpy-1.8.1.tar.gz"
-    sha1 "8fe1d5f36bab3f1669520b4c7d8ab59a21a984da"
+    sha256 "3d722fc3ac922a34c50183683e828052cd9bb7e9134a95098441297d7ea1c7a9"
   end
 
   resource "libkml" do
