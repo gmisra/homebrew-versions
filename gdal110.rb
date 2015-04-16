@@ -225,7 +225,7 @@ class Gdal110 < Formula
     ENV["ARCHFLAGS"] = "-arch #{MacOS.preferred_arch}"
 
     # Fix hardcoded mandir: http://trac.osgeo.org/gdal/ticket/5092
-    inreplace "configure", %r[^mandir="\$\{prefix\}/man"$], ""
+    inreplace "configure", /^mandir="\$\{prefix\}\/man"$/, ""
 
     system "./configure", *configure_args
     system "make"
