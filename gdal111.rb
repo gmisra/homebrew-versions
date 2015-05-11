@@ -3,6 +3,20 @@ class Gdal111 < Formula
   url "http://download.osgeo.org/gdal/1.11.1/gdal-1.11.1.tar.gz"
   sha256 "f46b5944a8cabc8516673f231f466131cdfd2cdc6677dbee5d96ec7fc58a3340"
 
+  conflicts_with "gdal",
+                 :because => "gdal111 and gdal install the same binaries."
+
+  stable do
+    # REMOVE when 1.11.2 is released
+    # Fix segfault when executing OGR2SQLITE_Register() when compiled against sqlite 3.8.7
+    # See: http://trac.osgeo.org/gdal/ticket/5725, https://github.com/OSGeo/gdal/commit/12d3b98
+    # Fixes issue with QGIS's Save as... for vector layers: http://hub.qgis.org/issues/11526
+    patch :p2 do
+      url "https://github.com/OSGeo/gdal/commit/12d3b984a052c59ee336f952902b82ace01ba31c.diff"
+      sha1 "844bb827327f9c64918499f3cce3ded9414952c4"
+    end
+  end
+
   option "with-complete", "Use additional Homebrew libraries to provide more drivers."
   option "with-opencl", "Build with OpenCL acceleration."
   option "with-armadillo", "Build with Armadillo accelerated TPS transforms."
@@ -56,17 +70,6 @@ class Gdal111 < Formula
     depends_on "xz" # get liblzma compression algorithm library from XZutils
     depends_on "poppler"
     depends_on "json-c"
-  end
-
-  stable do
-    # REMOVE when 1.11.2 is released
-    # Fix segfault when executing OGR2SQLITE_Register() when compiled against sqlite 3.8.7
-    # See: http://trac.osgeo.org/gdal/ticket/5725, https://github.com/OSGeo/gdal/commit/12d3b98
-    # Fixes issue with QGIS's Save as... for vector layers: http://hub.qgis.org/issues/11526
-    patch :p2 do
-      url "https://github.com/OSGeo/gdal/commit/12d3b984a052c59ee336f952902b82ace01ba31c.diff"
-      sha1 "844bb827327f9c64918499f3cce3ded9414952c4"
-    end
   end
 
   # Extra linking libraries in configure test of armadillo may throw warning
